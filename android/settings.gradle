@@ -1,0 +1,3 @@
+rootProject.name = 'BowserTest'
+
+include ':app'
