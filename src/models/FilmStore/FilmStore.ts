@@ -74,11 +74,11 @@ export const FilmStore = types.model("FilmStore", {
         console.error(error)
       }
     }),
-    clearFilms () {
-      self.films = []
-      self.communityFilms = []
-      self.otherFilms = []
-    },
+    // clearFilms () {
+    //   self.films = []
+    //   self.communityFilms = []
+    //   self.otherFilms = []
+    // },
     addSelectedCommunityFilm (filmId) {
       self.selectedCommunityFilm = filmId
     },

@@ -1,126 +1,137 @@
 import * as React from "react"
-import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StatusBar } from "react-native"
+import Button from "react-native-button"
 import { NavigationScreenProps } from "react-navigation"
-import { Text } from "../../shared/text"
-import { Button } from "../../shared/button"
-import { Screen } from "../../shared/screen"
-import { Wallpaper } from "../../shared/wallpaper"
-import { Header } from "../../shared/header"
-import { color, spacing } from "../../../theme"
-import { bowserLogo } from "./"
-
-const FULL: ViewStyle = { flex: 1 }
-const CONTAINER: ViewStyle = { 
-  backgroundColor: color.transparent,
-  paddingHorizontal: spacing[4],
-}
-const TEXT: TextStyle = { 
-  color: color.palette.white,
-  fontFamily: "Montserrat",
-}
-const BOLD: TextStyle = { fontWeight: "bold" }
-const HEADER: TextStyle = {
-  paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1],
-  paddingHorizontal: 0,
-}
-const HEADER_TITLE: TextStyle = { 
-  ...TEXT,
-  ...BOLD,
-  fontSize: 12,
-  lineHeight: 15,
-  textAlign: "center",
-  letterSpacing: 1.5,
-}
-const TITLE_WRAPPER: TextStyle = { 
-  ...TEXT,
-  textAlign: "center",
-}
-const TITLE: TextStyle = { 
-  ...TEXT, 
-  ...BOLD,
-  fontSize: 28,
-  lineHeight: 38,
-  textAlign: "center",
-}
-const ALMOST: TextStyle = { 
-  ...TEXT, 
-  ...BOLD,  
-  fontSize: 26,
-  fontStyle: "italic",
-}
-const BOWSER: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-}
-const CONTENT: TextStyle = {
-  ...TEXT,  
-  color: "#BAB6C8",  
-  fontSize: 15,
-  lineHeight: 22,
-  marginBottom: spacing[5],
-}
-const CONTINUE: ViewStyle = { 
-  paddingVertical: spacing[4], 
-  paddingHorizontal: spacing[4],
-  backgroundColor: "#5D2555",
-}
-const CONTINUE_TEXT: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 13,
-  letterSpacing: 2,
-}
-const FOOTER: ViewStyle = { backgroundColor: "#20162D" }
-const FOOTER_CONTENT: ViewStyle = {
-  paddingVertical: spacing[4], 
-  paddingHorizontal: spacing[4],
-}
+import{
+  View,
+  Text,
+  Picker,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native"
 
 export interface FirstExampleScreenProps extends NavigationScreenProps<{}> {}
+  //nextScreen = () => this.props.navigation.navigate("secondExample")
 
-export class FirstExampleScreen extends React.Component<FirstExampleScreenProps, {}> {
-  nextScreen = () => this.props.navigation.navigate("secondExample")
 
-  render() {
-    return (
-      <View style={FULL}>
-        <StatusBar barStyle="light-content" />      
-        <Wallpaper />
-        <SafeAreaView style={FULL}>
-          <Screen style={CONTAINER} backgroundColor={color.transparent} preset="scrollStack">
-            <Header
-              headerTx="firstExampleScreen.poweredBy"
-              style={HEADER}
-              titleStyle={HEADER_TITLE}
-            />
-            <Text style={TITLE_WRAPPER}> 
-              <Text style={TITLE} text="Your new app, " />
-              <Text style={ALMOST} text="almost" />
-              <Text style={TITLE} text="!" />
-            </Text>
-            <Text style={TITLE} preset="header" tx="firstExampleScreen.readyForLaunch" />          
-            <Image source={bowserLogo} style={BOWSER} />
-            <Text style={CONTENT}>
-              This probably isn't what your app is going to look like. Unless your designer handed you this screen and, in that case, congrats! You're ready to ship.
-            </Text>
-            <Text style={CONTENT}>
-              For everyone else, this is where you'll see a live preview of your fully functioning app using Ignite.
-            </Text>
-          </Screen>
-        </SafeAreaView>
-        <SafeAreaView style={FOOTER}>
-          <View style={FOOTER_CONTENT}>
-            <Button
-              style={CONTINUE}
-              textStyle={CONTINUE_TEXT}
-              tx="firstExampleScreen.continue"
-              onPress={this.nextScreen}
-              />
-          </View>
-        </SafeAreaView>
-      </View>
-    )
-  }
+const filmEditionUrls = [
+  {"edition": "Community Videos", "urlString": "https://www.storyhive.com/api/grid-data/portal-community-videos"},
+  {"edition": "Music Videos", "urlString": "https://www.storyhive.com/api/grid-data/edition-projects/phase/10/cycleType/music/cycleId/10"},
+  {"edition": "Web Series", "urlString": "https://www.storyhive.com/api/grid-data/edition-projects/phase/10/cycleType/web/cycleId/12"},
+  {"edition": "Digital Shorts", "urlString": "https://www.storyhive.com/api/grid-data/edition-projects/phase/10/cycleType/short/cycleId/8"},
+  {"edition": "Animation", "urlString": "https://www.storyhive.com/api/grid-data/edition-projects/phase/10/cycleType/short/cycleId/9"},
+]
+
+interface State {
+    url: "https://www.storyhive.com/api/grid-data/portal-community-videos",
+    currentSelectedEditionId: 0
 }
+
+export class FirstExampleScreen extends React.Component<FirstExampleScreenProps, State> {
+  public state: State
+
+  constructor(props) {
+      super(props)
+      this.state = {
+        url: "https://www.storyhive.com/api/grid-data/portal-community-videos",
+        currentSelectedEditionId: 0,
+      }
+    }
+
+    _onPress = () => {
+      //console.log(this.state.url)
+      // console.log("url:222")
+      // console.log(filmEditionUrls[this.state.currentSelectedEditionId].edition)
+      this.props.navigation.navigate("secondExample", {
+        filmTypeUrl: this.state.url, edition: filmEditionUrls[this.state.currentSelectedEditionId].edition,
+      })
+
+      // this.props.navigator.push({
+      //     title: "Story Hive",
+      //     component: FilmList,
+      //     passProps: {filmTypeUrl: this.state.url, edition: filmEditionUrls[this.state.currentSelectedEditionId].edition}
+      // });
+    }
+
+
+    updateUrl = (url, index) => {
+        console.log(url, index)
+      this.setState({url: url, currentSelectedEditionId: index})
+    }
+
+    _generatePickerItems() {
+      const pickerItems = filmEditionUrls.map((item, index) => {
+          return <Picker.Item key={index} label={item.edition} value={item.urlString} />
+      })
+      return pickerItems
+    }
+
+    render() {
+      console.log("url:222")
+      console.log(filmEditionUrls[this.state.currentSelectedEditionId].edition)
+        return (
+              <View style={styles.container}>
+                  <View style={styles.view}>
+                      <Text style={styles.text}>{filmEditionUrls[this.state.currentSelectedEditionId].edition}</Text>
+                  </View>
+                  {
+                      filmEditionUrls.length > 0 ?
+                      <Picker
+                          selectedValue={this.state.url}
+                          onValueChange={this.updateUrl}>
+                          {this._generatePickerItems()}
+                      </Picker>
+                      :
+                      <View style={styles.textContainer}>
+                          <ActivityIndicator size="large" color="#0000ff"/>
+                      </View>
+                  }
+                  <View style={styles.buttonView}>
+                      <Button
+                          containerStyle={{
+                              padding: 10,
+                              marginBottom: 30,
+                              height: 45,
+                              width: 300,
+                              overflow: "hidden",
+                              borderRadius: 4,
+                              backgroundColor: "#013220",
+                          }}
+                          onPress={this._onPress}
+                          style={{ fontSize: 20, color: "white" }}
+                      >
+                          Watch Now!
+                      </Button>
+                  </View>
+              </View>
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      justifyContent: "center",
+      backgroundColor: "#c2f2d0",
+  },
+  view: {
+      flex: 1,
+      justifyContent: "center",
+  },
+  buttonView: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+  },
+  text: {
+      fontSize: 32,
+      alignSelf: "center",
+      color: "#800000",
+      marginTop: 110,
+      fontFamily: "Futura-Mediumitalic",
+      textDecorationLine: "underline",
+  },
+  textContainer: {
+      flex: 1,
+      justifyContent: "center",
+  },
+})

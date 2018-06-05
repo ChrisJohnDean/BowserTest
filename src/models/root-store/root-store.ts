@@ -8,12 +8,7 @@ import  { FilmStore } from "../FilmStore"
 export const RootStoreModel = types.model("RootStore").props({
   navigationStore: types.optional(NavigationStoreModel, {}),
   filmStore: types.optional(FilmStore, {
-    //communityFilms: [],
-    //otherFilms: [],
-    //films: [],
-    isFetching: true,
-    //selectedCommunityFilm: "",
-    //selectedOtherFilm: "",
+    isFetching: false,
   }),
 })
 
