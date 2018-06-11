@@ -1,13 +1,13 @@
 import { types } from "mobx-state-tree"
 import { NavigationStoreModel } from "../navigation-store"
-import  { FilmStore } from "../FilmStore"
+import { FilmStoreModel } from "../FilmStore"
 
 /**
  * An RootStore model.
  */
 export const RootStoreModel = types.model("RootStore").props({
   navigationStore: types.optional(NavigationStoreModel, {}),
-  filmStore: types.optional(FilmStore, {
+  filmStore: types.optional(FilmStoreModel, {
     isFetching: false,
   }),
 })

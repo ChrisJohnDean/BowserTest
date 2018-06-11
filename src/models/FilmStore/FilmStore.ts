@@ -1,11 +1,11 @@
-import { types, onSnapshot, flow } from "mobx-state-tree"
+import { types, flow } from "mobx-state-tree"
 // import { observable } from 'mobx'
 
 const OtherVideos = types.model("OtherVideos", {
   project_id: types.optional(types.string, ""),
   music_artist_title: types.optional(types.string, ""),
   topic_names: types.optional(types.array(types.string), []),
-  video_views: types.optional(types.string, "")
+  video_views: types.optional(types.string, ""),
 })
 
 const CommunityVideos = types.model("CommunityVideos", {
@@ -16,7 +16,7 @@ const CommunityVideos = types.model("CommunityVideos", {
   cycle_name: types.optional(types.string, ""),
   cycle_type_name: types.optional(types.string, ""),
   topic_names: types.maybe(types.string),
-  project_result: types.optional(types.string, "")
+  project_result: types.optional(types.string, ""),
 })
 
 const Film = types.model("Film", {
@@ -36,25 +36,26 @@ const Film = types.model("Film", {
 const Community = types.compose(CommunityVideos, Film)
 const Other = types.compose(OtherVideos, Film)
 
-export const FilmStore = types.model("FilmStore", {
-  communityFilms: types.optional(types.array(Community), []),
-  otherFilms: types.optional(types.array(Other), []),
-  films: types.optional(types.array(Film), []),
-  isFetching: types.boolean,
-  selectedCommunityFilm: types.maybe(types.reference(Community)),
-  selectedOtherFilm: types.maybe(types.reference(Other)),
-})
+export const FilmStoreModel = types
+  .model("FilmStore", {
+    communityFilms: types.optional(types.array(Community), []),
+    otherFilms: types.optional(types.array(Other), []),
+    films: types.optional(types.array(Film), []),
+    isFetching: types.boolean,
+    selectedCommunityFilm: types.maybe(types.reference(Community)),
+    selectedOtherFilm: types.maybe(types.reference(Other)),
+  })
   .actions(self => ({
-    fetchFilms: flow(function * (url, edition) {
+    fetchFilms: flow(function*(url, edition) {
       try {
         self.isFetching = true
         const response = yield fetch(url)
         const responseJson = yield response.json()
         edition === "Community Videos"
-          ? self.communityFilms = responseJson.results
-          : self.otherFilms = responseJson.results
+          ? (self.communityFilms = responseJson.results)
+          : (self.otherFilms = responseJson.results)
         // This is a contrived use of films[] and .map function, done for practise
-        self.films = responseJson.results.map((item) => {
+        self.films = responseJson.results.map(item => {
           return {
             id: item.id,
             creator_id: item.creator_id,
@@ -74,16 +75,12 @@ export const FilmStore = types.model("FilmStore", {
         console.error(error)
       }
     }),
-    // clearFilms () {
-    //   self.films = []
-    //   self.communityFilms = []
-    //   self.otherFilms = []
-    // },
-    addSelectedCommunityFilm (filmId) {
+    addSelectedCommunityFilm(filmId) {
       self.selectedCommunityFilm = filmId
     },
-    addSelectedOtherFilm (filmId) {
+    addSelectedOtherFilm(filmId) {
       self.selectedOtherFilm = filmId
     },
   }))
 
+export type FilmStoreType = typeof FilmStoreModel.Type
