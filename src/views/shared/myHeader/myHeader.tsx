@@ -17,8 +17,8 @@ export class MyHeader extends React.Component<MyHeaderProps, {}> {
         <Text>{this.props.navigation.getParam("edition", "Community Videos")}</Text>
         {/* {this.props.children} */}
         <Right>
-          <Button transparent>
-            <Icon name="menu" />
+          <Button transparent onPress={() => this.props.navigation.navigate("drawerStack")}>
+            <Icon name="funnel" />
           </Button>
         </Right>
       </Header>
