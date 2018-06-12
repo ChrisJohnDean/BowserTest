@@ -100,18 +100,9 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
 
     return (
       <View style={styles.container}>
-        {/* <StatusBarPadding/> */}
-        {/* <Header>
-          <Left>
-            <Button transparent onPress={() => this.navigation.goBack()}>
-              <Icon name="arrow-back"/>
-            </Button>
-          </Left>
-        </Header> */}
         <MyHeader navigation={this.props.navigation}>
-          <Title /*style={{marginTop: 15}}*/>{this.edition}</Title>
+          <Title>{this.edition}</Title>
         </MyHeader>
-
         {!this.props.filmStore.isFetching ? (
           <FlatList data={data} keyExtractor={this._keyExtractor} renderItem={this._renderItem} />
         ) : (
@@ -160,7 +151,7 @@ const styles = StyleSheet.create({
   thumb: {
     width: 80,
     height: 80,
-    borderRadius: 80 / 2,
+    borderRadius: 80 / 8,
     marginRight: 10,
   },
 })
