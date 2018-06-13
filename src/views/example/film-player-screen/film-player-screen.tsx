@@ -47,7 +47,7 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
         <View style={styles.textBox}>
           <YouTube
             videoId={this.selectedFilm.video_link} // The YouTube video ID
-            play={true} // control playback of video with true/false
+            play={false} // control playback of video with true/false
             fullscreen={true} // control whether the video should play in fullscreen or inline
             loop={true} // control whether the video should loop when ended
             apiKey={"AIzaSyBRPkRzflSheuVv2mkNm98rYyffqMFbAts"}

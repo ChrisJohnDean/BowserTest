@@ -56,6 +56,7 @@ export class RootComponent extends React.Component<{}, RootComponentState> {
     // --- am: begin list of stores ---
     const otherStores = {
       filmStore: rootStore.filmStore,
+      userStore: rootStore.userStore,
     }
     // --- am: end list of stores ---
 

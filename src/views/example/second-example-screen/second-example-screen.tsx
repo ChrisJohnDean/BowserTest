@@ -13,6 +13,7 @@ import { NavigationScreenProps } from "react-navigation"
 import { inject } from "mobx-react"
 import { observer } from "mobx-react"
 import { FilmStoreType } from "../../../models/Filmstore"
+import { UserStoreType } from "../../../models/user-store"
 import { MyHeader } from "../../shared/myHeader"
 
 interface ListItemProps {
@@ -49,9 +50,10 @@ let colors = ["#e43446", "#4fb84f", "#e23d96", "#c2c500", "#72c2a7", "#f37021"]
 
 export interface SecondExampleScreenProps extends NavigationScreenProps<{}> {
   filmStore: FilmStoreType
+  userStore: UserStoreType
 }
 
-@inject("filmStore")
+@inject("filmStore", "userStore")
 @observer
 export class SecondExampleScreen extends React.Component<SecondExampleScreenProps, {}> {
   navigation: any
@@ -85,7 +87,8 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
   _onPressItem = (index, item) => {
     console.log("Pressed row: " + index)
     console.log(item)
-
+    let url = "https://www.storyhive.com/creator/profile/id/" + item.creator_id
+    this.props.userStore.fetchUser(url, item.project_lead)
     this.edition === "Community Videos"
       ? this.props.filmStore.addSelectedCommunityFilm(this.props.filmStore.communityFilms[index].id)
       : this.props.filmStore.addSelectedOtherFilm(this.props.filmStore.otherFilms[index].id)

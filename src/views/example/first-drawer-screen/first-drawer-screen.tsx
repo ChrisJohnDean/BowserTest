@@ -29,7 +29,10 @@ export class FirstDrawerScreen extends React.Component<FirstDrawerScreenProps, m
   }
 
   render() {
-    //var myStyle: any //= styles.view3
+    // var myStyle: any //= styles.view3
+    // this.state.flexDirectionIsColumn
+    //   ? myStyle = styles.view3
+    //   : myStyle = styles.view5
     return (
       <View style={styles.container}>
         <Header style={styles.header}>
@@ -50,38 +53,41 @@ export class FirstDrawerScreen extends React.Component<FirstDrawerScreenProps, m
           <View style={{ flex: 2, backgroundColor: "#055401", margin: 5 }} />
         </View>
         <View style={styles.view2}>
-          <View style={{ flex: 1, backgroundColor: "#bbf2b8", margin: 5 }} />
-          <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#bbf2b8",
+              margin: 5,
+            }}
+          />
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#055401",
+              margin: 5,
+            }}
+          />
           <View style={{ flex: 2, backgroundColor: "#bbf2b8", margin: 5 }} />
         </View>
         {console.log(this.state.flexDirectionIsColumn)}
         <TouchableHighlight onPress={this.switchDirection} style={{ flex: 1 }}>
-          {/* {
-            this.state.flexDirectionIsColumn
-            ? myStyle = styles.view3
-            : myStyle = styles.view5
-          }
-          <View style={myStyle}>
-                <View style={{flex: 1, backgroundColor: "#055401", margin: 5}}>
-                </View>
-                <View style={{flex: 1, backgroundColor: "#bbf2b8", margin: 5}}>
-                </View>
-                <View style={{flex: 1, backgroundColor: "#055401", margin: 5}}>
-                </View>
-              </View> */}
-          {this.state.flexDirectionIsColumn ? (
-            <View style={styles.view3}>
-              <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
-              <View style={{ flex: 1, backgroundColor: "#bbf2b8", margin: 5 }} />
-              <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
-            </View>
-          ) : (
-            <View style={styles.view5}>
-              <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
-              <View style={{ flex: 1, backgroundColor: "#bbf2b8", margin: 5 }} />
-              <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
-            </View>
-          )}
+          <View style={this.state.flexDirectionIsColumn ? styles.view3 : styles.view5}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "#055401",
+                margin: 5,
+              }}
+            />
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "#bbf2b8",
+                margin: 5,
+              }}
+            />
+            <View style={{ flex: 1, backgroundColor: "#055401", margin: 5 }} />
+          </View>
         </TouchableHighlight>
         <View style={styles.view4}>
           <View style={{ height: 80, width: 80, backgroundColor: "#bbf2b8", margin: 5 }} />
