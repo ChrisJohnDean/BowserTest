@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { StyleSheet, Text, View, Image } from "react-native"
+import { StyleSheet, Text, View, Image, TouchableHighlight } from "react-native"
 import YouTube from "react-native-youtube"
 import { NavigationScreenProps } from "react-navigation"
 import { inject } from "mobx-react"
@@ -34,6 +34,12 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
         : this.props.filmStore.selectedOtherFilm
   }
 
+  navigate = () => {
+    this.navigation.navigate("creatorProfile", {
+      projectLead: this.selectedFilm.project_lead,
+    })
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -60,7 +66,9 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
         </View>
         <View style={styles.textBox}>
           <Text style={styles.quote}>"{this.selectedFilm.elevator_pitch}"</Text>
-          <Text style={styles.projectLead}>By: {this.selectedFilm.project_lead}</Text>
+          <TouchableHighlight onPress={this.navigate}>
+            <Text style={styles.projectLead}>By: {this.selectedFilm.project_lead}</Text>
+          </TouchableHighlight>
         </View>
       </View>
     )

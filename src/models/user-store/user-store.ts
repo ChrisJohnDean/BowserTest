@@ -1,10 +1,10 @@
 import { types, flow } from "mobx-state-tree"
-import DomSelector from "react-native-dom-parser"
 
 const User = types.model("User", {
   project_lead: types.optional(types.string, ""),
   image_url: types.optional(types.string, ""),
   project_names: types.optional(types.array(types.string), []),
+  project_image_Urls: types.optional(types.array(types.string), []),
 })
 
 export const UserStoreModel = types
@@ -16,55 +16,56 @@ export const UserStoreModel = types
     fetchUser: flow(function*(url: string, projectLead: string) {
       try {
         self.isFetching = true
-        const found = self.users.find(item => item.project_lead === projectLead)
 
+        // Check if user info has already been stored, if not then proceed
+        const found = self.users.find(item => item.project_lead === projectLead)
         if (!found) {
-          console.log(url)
+          // Fetch raw html from individual creator on storyhive and store it as a string
           const response = yield fetch(url)
           const responseHtml = yield response.text()
 
-          const imageStringStart = '<img class="creator-image img-responsive" src="'
-          const index = responseHtml.indexOf(imageStringStart)
-          const newIndex = responseHtml.indexOf(".jpg", index) + 4
-          const imageString = responseHtml.substring(index + imageStringStart.length, newIndex)
-          console.log(newIndex)
-          console.log(index)
-          console.log(imageString)
+          // Parse html string for profile image URL, project names, and project ID's
+          const profileImage = multipleSearchStrings(
+            responseHtml,
+            '<img class="creator-image img-responsive" src="',
+            '" alt=',
+          )[0]
+          const projects = multipleSearchStrings(responseHtml, 'title="View Project">', "</a>")
+          const projectImageIds = multipleSearchStrings(
+            responseHtml,
+            'href="/project/show/id/',
+            '" class="i-trackclick-profile',
+          )
 
-          let projectsStringStart = 'title="View Project">'
-          let projectsStartIndex = responseHtml.indexOf(projectsStringStart)
-          let projectEndIndex = responseHtml.indexOf("</a>", projectsStartIndex)
-          let projectString = responseHtml
-            .substring(projectsStartIndex + projectsStringStart.length, projectEndIndex)
-            .trim()
-
-          console.log("projectsStartIndex: ", projectsStartIndex)
-          console.log(projectString)
-          const projects = multipleProjectStrings(responseHtml, projectEndIndex)
-          console.log(projects.length)
-          var i
-          for (i = 0; i < projects.length; i++) {
-            console.log("project name: ", projects[i])
+          // Fetch raw html for individual projects from storyhive using project IDs and parse image urls from html
+          var projectImageUrls = []
+          for (var imageId of projectImageIds) {
+            console.log("image id: ", imageId)
+            const response = yield fetch("https://www.storyhive.com/project/show/id/" + imageId)
+            const responseHtml = yield response.text()
+            let projectImageUrl: string
+            projectImageUrl = multipleSearchStrings(
+              responseHtml,
+              '<img class="img-box-art" src="',
+              '" alt="',
+            )[0]
+            if (projectImageUrl === undefined) {
+              projectImageUrl = multipleSearchStrings(
+                responseHtml,
+                'style="background-image: url(',
+                "); background-size: cover;",
+              )[0]
+            }
+            projectImageUrls.push(projectImageUrl)
           }
-          // let secondProjectStartIndex = responseHtml.indexOf(
-          //   'title="View Project">',
-          //   projectEndIndex,
-          // )
-          // if (secondProjectStartIndex > 0) {
-          //   let secondProjectEndIndex = responseHtml.indexOf("</a>", secondProjectStartIndex)
-          //   let secondProjectString = responseHtml.substring(
-          //     secondProjectStartIndex + projectsStringStart.length,
-          //     secondProjectEndIndex,
-          //   )
 
-          //   console.log(secondProjectString)
-          // }
-
-          // self.users.push({
-          //   project_lead: projectLead,
-          //   image_url: imageUrl,
-          //   project_names: projectNames,
-          // })
+          // Create users and add them to users array
+          self.users.push({
+            project_lead: projectLead,
+            image_url: profileImage,
+            project_names: projects,
+            project_image_Urls: projectImageUrls,
+          })
         } else {
           console.log("user already exists in store")
         }
@@ -72,39 +73,36 @@ export const UserStoreModel = types
         console.error(error)
       }
     }),
-    // multipleProjectStrings: function(responseHtml, firstProjectEndIndex) {
-    //   let projectsStringStart = 'title="View Project">'
-    //   let secondProjectStartIndex = responseHtml.indexOf(
-    //     'title="View Project">',
-    //     firstProjectEndIndex,
-    //   )
-    //   if (secondProjectStartIndex > 0) {
-    //     let secondProjectEndIndex = responseHtml.indexOf("</a>", secondProjectStartIndex)
-    //     let secondProjectString = responseHtml.substring(
-    //       secondProjectStartIndex + projectsStringStart.length,
-    //       secondProjectEndIndex,
-    //     )
-    //     console.log(secondProjectString)
-    //   }
-    // },
   }))
 
-function multipleProjectStrings(responseHtml, firstProjectEndIndex, projects = []) {
-  //var projects = []
-  let projectsStringStart = 'title="View Project">'
-  let secondProjectStartIndex = responseHtml.indexOf('title="View Project">', firstProjectEndIndex)
-  let secondProjectEndIndex: any
-  if (secondProjectStartIndex > 0) {
-    secondProjectEndIndex = responseHtml.indexOf("</a>", secondProjectStartIndex)
+function multipleSearchStrings(
+  responseHtml,
+  searchStringStart,
+  searchStringEnd,
+  previousSearchEndIndex = 0,
+  searchResults = [],
+) {
+  let searchStartIndex = responseHtml.indexOf(searchStringStart, previousSearchEndIndex)
+
+  if (searchStartIndex > 0) {
+    //
+    let searchEndIndex = responseHtml.indexOf(searchStringEnd, searchStartIndex)
     let secondProjectString = responseHtml
-      .substring(secondProjectStartIndex + projectsStringStart.length, secondProjectEndIndex)
+      .substring(searchStartIndex + searchStringStart.length, searchEndIndex)
       .trim()
-    projects.push(secondProjectString)
-    console.log(secondProjectString)
-    projects.concat(multipleProjectStrings(responseHtml, secondProjectEndIndex, projects))
+    //
+    searchResults.push(secondProjectString)
+    searchResults.concat(
+      multipleSearchStrings(
+        responseHtml,
+        searchStringStart,
+        searchStringEnd,
+        searchEndIndex,
+        searchResults,
+      ),
+    )
   }
-  console.log(projects.length)
-  return projects
+  return searchResults
 }
 
 export type UserStoreType = typeof UserStoreModel.Type
