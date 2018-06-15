@@ -5,15 +5,17 @@ const User = types.model("User", {
   image_url: types.optional(types.string, ""),
   project_names: types.optional(types.array(types.string), []),
   project_image_Urls: types.optional(types.array(types.string), []),
+  creator_id: types.identifier(types.optional(types.string, "")),
 })
 
 export const UserStoreModel = types
   .model("UserStore", {
     users: types.optional(types.array(User), []),
     isFetching: types.boolean,
+    selectedUser: types.maybe(types.reference(User)),
   })
   .actions(self => ({
-    fetchUser: flow(function*(url: string, projectLead: string) {
+    fetchUser: flow(function*(url: string, projectLead: string, creatorId: string) {
       try {
         self.isFetching = true
 
@@ -65,6 +67,7 @@ export const UserStoreModel = types
             image_url: profileImage,
             project_names: projects,
             project_image_Urls: projectImageUrls,
+            creator_id: creatorId,
           })
         } else {
           console.log("user already exists in store")
@@ -73,6 +76,9 @@ export const UserStoreModel = types
         console.error(error)
       }
     }),
+    addSelectedUser(creatorId) {
+      self.selectedUser = creatorId
+    },
   }))
 
 function multipleSearchStrings(

@@ -19,19 +19,26 @@ const CommunityVideos = types.model("CommunityVideos", {
   project_result: types.optional(types.string, ""),
 })
 
-const Film = types.model("Film", {
-  id: types.identifier(types.optional(types.string, "")),
-  creator_id: types.optional(types.string, ""),
-  elevator_pitch: types.optional(types.string, ""),
-  app_instance_id: types.optional(types.string, ""),
-  title: types.optional(types.string, ""),
-  project_lead: types.optional(types.string, ""),
-  video_link: types.optional(types.string, ""),
-  image_url: types.optional(types.string, ""),
-  genre_name: types.optional(types.string, ""),
-  bitly_url: types.optional(types.string, ""),
-  trending: types.optional(types.string, ""),
-})
+const Film = types
+  .model("Film", {
+    id: types.identifier(types.optional(types.string, "")),
+    creator_id: types.optional(types.string, ""),
+    elevator_pitch: types.optional(types.string, ""),
+    app_instance_id: types.optional(types.string, ""),
+    title: types.optional(types.string, ""),
+    project_lead: types.optional(types.string, ""),
+    video_link: types.optional(types.string, ""),
+    image_url: types.optional(types.string, ""),
+    genre_name: types.optional(types.string, ""),
+    bitly_url: types.optional(types.string, ""),
+    trending: types.optional(types.string, ""),
+    creator_profile_image_url: types.optional(types.string, ""),
+  })
+  .actions(self => ({
+    addCreatorProfileImageUrl(url) {
+      self.creator_profile_image_url = url
+    },
+  }))
 
 const Community = types.compose(CommunityVideos, Film)
 const Other = types.compose(OtherVideos, Film)
@@ -54,6 +61,7 @@ export const FilmStoreModel = types
         edition === "Community Videos"
           ? (self.communityFilms = responseJson.results)
           : (self.otherFilms = responseJson.results)
+
         // This is a contrived use of films[] and .map function, done for practise
         self.films = responseJson.results.map(item => {
           return {

@@ -4,7 +4,8 @@ import YouTube from "react-native-youtube"
 import { NavigationScreenProps } from "react-navigation"
 import { inject } from "mobx-react"
 import { observer } from "mobx-react"
-import { FilmStoreType } from "../../../models/Filmstore"
+import { FilmStoreType } from "../../../models/FilmStore"
+import { UserStoreType } from "../../../models/user-store"
 import { MyHeader } from "../../shared/myHeader"
 import { Left, Icon, Button, Header, Title } from "native-base"
 import { WithSubscription } from "../../shared/higher-order-component"
@@ -13,9 +14,10 @@ const HeaderHoc = WithSubscription(MyHeader)
 
 interface FilmPlayerScreenProps extends NavigationScreenProps<{}> {
   filmStore: FilmStoreType
+  userStore: UserStoreType
 }
 
-@inject("filmStore")
+@inject("filmStore", "userStore")
 @observer
 export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
   navigation: any
@@ -35,17 +37,31 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
   }
 
   navigate = () => {
+    //let user: any
+    //const users = this.props.userStore.users
+
+    this.props.userStore.addSelectedUser(this.selectedFilm.creator_id)
+    this.selectedFilm.addCreatorProfileImageUrl(this.props.userStore.selectedUser.image_url)
+    // var i
+    // for (i = 0; i < users.length; i++) {
+    //   if (users[i].project_lead === this.selectedFilm.project_lead) {
+    //     this.selectedFilm.addCreatorProfileImageUrl(users[i].image_url)
+    //     user = users[i]
+    //     break
+    //   }
+    // }
     this.navigation.navigate("creatorProfile", {
       projectLead: this.selectedFilm.project_lead,
+      //userProjects: user.project_names,
     })
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <HeaderHoc navigation={this.props.navigation}>
+        <MyHeader navigation={this.props.navigation}>
           <Title /*style={{marginTop: 15}}*/>{this.edition}</Title>
-        </HeaderHoc>
+        </MyHeader>
         <View style={styles.upperView}>
           <Image style={styles.thumb} source={{ uri: this.selectedFilm.image_url }} />
           <Text style={styles.title}>{this.selectedFilm.title}</Text>

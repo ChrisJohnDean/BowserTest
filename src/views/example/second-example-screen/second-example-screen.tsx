@@ -88,7 +88,7 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
     console.log("Pressed row: " + index)
     console.log(item)
     let url = "https://www.storyhive.com/creator/profile/id/" + item.creator_id
-    this.props.userStore.fetchUser(url, item.project_lead)
+    this.props.userStore.fetchUser(url, item.project_lead, item.creator_id)
     this.edition === "Community Videos"
       ? this.props.filmStore.addSelectedCommunityFilm(this.props.filmStore.communityFilms[index].id)
       : this.props.filmStore.addSelectedOtherFilm(this.props.filmStore.otherFilms[index].id)

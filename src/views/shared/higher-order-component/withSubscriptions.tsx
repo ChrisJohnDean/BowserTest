@@ -9,7 +9,7 @@ export interface MySubscriptionProps extends NavigationScreenProps<{}> {}
 export var WithSubscription = WrappedComponent => {
   class WithSubscription extends React.Component<MySubscriptionProps, {}> {
     render() {
-      console.log("hooked up", this.props.navigation)
+      //console.log("hooked up", this.props.navigation)
       return <WrappedComponent navigation={this.props.navigation} />
     }
   }
