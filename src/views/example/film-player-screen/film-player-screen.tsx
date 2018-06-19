@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { StyleSheet, Text, View, Image, TouchableHighlight } from "react-native"
+import { StyleSheet, Text, View, Image, TouchableHighlight, ActivityIndicator } from "react-native"
 import YouTube from "react-native-youtube"
 import { NavigationScreenProps } from "react-navigation"
 import { inject } from "mobx-react"
@@ -37,22 +37,10 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
   }
 
   navigate = () => {
-    //let user: any
-    //const users = this.props.userStore.users
-
     this.props.userStore.addSelectedUser(this.selectedFilm.creator_id)
-    this.selectedFilm.addCreatorProfileImageUrl(this.props.userStore.selectedUser.image_url)
-    // var i
-    // for (i = 0; i < users.length; i++) {
-    //   if (users[i].project_lead === this.selectedFilm.project_lead) {
-    //     this.selectedFilm.addCreatorProfileImageUrl(users[i].image_url)
-    //     user = users[i]
-    //     break
-    //   }
-    // }
+    console.log(this.selectedFilm.creator.project_lead)
     this.navigation.navigate("creatorProfile", {
       projectLead: this.selectedFilm.project_lead,
-      //userProjects: user.project_names,
     })
   }
 
@@ -82,9 +70,15 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
         </View>
         <View style={styles.textBox}>
           <Text style={styles.quote}>"{this.selectedFilm.elevator_pitch}"</Text>
-          <TouchableHighlight onPress={this.navigate}>
-            <Text style={styles.projectLead}>By: {this.selectedFilm.project_lead}</Text>
-          </TouchableHighlight>
+          {!this.props.userStore.isFetching ? (
+            <TouchableHighlight onPress={this.navigate}>
+              <Text style={styles.projectLead}>By: {this.selectedFilm.project_lead}</Text>
+            </TouchableHighlight>
+          ) : (
+            <View>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          )}
         </View>
       </View>
     )
@@ -137,6 +131,10 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 80 / 8,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
 })
 

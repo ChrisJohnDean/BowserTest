@@ -1,10 +1,10 @@
-import { types, flow } from "mobx-state-tree"
+import { types, flow, getRoot } from "mobx-state-tree"
 
-const User = types.model("User", {
+export const User = types.model("User", {
   project_lead: types.optional(types.string, ""),
   image_url: types.optional(types.string, ""),
   project_names: types.optional(types.array(types.string), []),
-  project_image_Urls: types.optional(types.array(types.string), []),
+  project_image_urls: types.optional(types.array(types.string), []),
   creator_id: types.identifier(types.optional(types.string, "")),
 })
 
@@ -15,44 +15,61 @@ export const UserStoreModel = types
     selectedUser: types.maybe(types.reference(User)),
   })
   .actions(self => ({
-    fetchUser: flow(function*(url: string, projectLead: string, creatorId: string) {
+    fetchUser: flow(function*(url: string, projectLead: string, creatorId: string, filmId: string) {
       try {
         self.isFetching = true
 
         // Check if user info has already been stored, if not then proceed
         const found = self.users.find(item => item.project_lead === projectLead)
-        if (!found) {
+        if (found.image_url === "") {
           // Fetch raw html from individual creator on storyhive and store it as a string
           const response = yield fetch(url)
           const responseHtml = yield response.text()
 
           // Parse html string for profile image URL, project names, and project ID's
-          const profileImage = multipleSearchStrings(
+          const profileImage = whileLoopSearch(
             responseHtml,
             '<img class="creator-image img-responsive" src="',
             '" alt=',
           )[0]
-          const projects = multipleSearchStrings(responseHtml, 'title="View Project">', "</a>")
-          const projectImageIds = multipleSearchStrings(
+          const projects = whileLoopSearch(responseHtml, 'title="View Project">', "</a>")
+          const projectImageIds = whileLoopSearch(
             responseHtml,
             'href="/project/show/id/',
             '" class="i-trackclick-profile',
           )
 
-          // Fetch raw html for individual projects from storyhive using project IDs and parse image urls from html
+          // Gets reference for filmStore
+          let rootStore = getRoot(self)
+          let filmStore = rootStore.filmStore
+
+          // Use the filmId paramater to grab matching film from filmstore, and add creators profile image to said film in filmStore
+          let someFilm = filmStore.getFilmById(filmId)
+          someFilm.addCreatorProfileImageUrl(profileImage, filmId)
+
+          /* This is another way to add the creators profile image to the selected films in the filmstore
+            if (filmStore.selectedOtherFilm === null) {
+              filmStore.selectedCommunityFilm.addCreatorProfileImageUrl(profileImage)
+            } else {
+              filmStore.selectedOtherFilm.addCreatorProfileImageUrl(profileImage)
+            }
+          */
+
+          // Fetch raw html for individual projects from storyhive
+          // using project IDs and parse image urls from html
           var projectImageUrls = []
           for (var imageId of projectImageIds) {
             console.log("image id: ", imageId)
             const response = yield fetch("https://www.storyhive.com/project/show/id/" + imageId)
             const responseHtml = yield response.text()
             let projectImageUrl: string
-            projectImageUrl = multipleSearchStrings(
+            projectImageUrl = whileLoopSearch(
               responseHtml,
               '<img class="img-box-art" src="',
               '" alt="',
             )[0]
             if (projectImageUrl === undefined) {
-              projectImageUrl = multipleSearchStrings(
+              projectImageUrl = whileLoopSearch(
                 responseHtml,
                 'style="background-image: url(',
                 "); background-size: cover;",
@@ -62,16 +79,26 @@ export const UserStoreModel = types
           }
 
           // Create users and add them to users array
-          self.users.push({
-            project_lead: projectLead,
-            image_url: profileImage,
-            project_names: projects,
-            project_image_Urls: projectImageUrls,
-            creator_id: creatorId,
-          })
+
+          let creator = self.getCreatorById(creatorId)
+          console.log("creator", creator)
+          creator.image_url = profileImage
+          creator.project_image_urls = projectImageUrls
+          creator.project_names = projects
+
+          // self.users.push({
+          //   project_lead: projectLead,
+          //   image_url: profileImage,
+          //   project_names: projects,
+          //   project_image_urls: projectImageUrls,
+          //   creator_id: creatorId,
+          // })
+
+          //
         } else {
           console.log("user already exists in store")
         }
+        self.isFetching = false
       } catch (error) {
         console.error(error)
       }
@@ -79,7 +106,39 @@ export const UserStoreModel = types
     addSelectedUser(creatorId) {
       self.selectedUser = creatorId
     },
+    addCreator(projectLead, creatorId) {
+      self.users.push({
+        project_lead: projectLead,
+        creator_id: creatorId,
+      })
+    },
   }))
+  .views(self => ({
+    getCreatorById(pid) {
+      //console.log("getCreatorById", pid)
+      let creator = self.users.find(item => parseInt(item.creator_id) === parseInt(pid))
+      //console.log(creator)
+      return creator
+    },
+  }))
+
+function whileLoopSearch(responseHtml, searchStringStart, searchStringEnd) {
+  var mySearchResults = []
+  var searchStartIndex = responseHtml.indexOf(searchStringStart)
+
+  //
+  while (searchStartIndex >= 0) {
+    let searchEndIndex = responseHtml.indexOf(searchStringEnd, searchStartIndex)
+    let projectString = responseHtml
+      .substring(searchStartIndex + searchStringStart.length, searchEndIndex)
+      .trim()
+    mySearchResults.push(projectString)
+
+    searchStartIndex = responseHtml.indexOf(searchStringStart, searchEndIndex)
+  }
+
+  return mySearchResults
+}
 
 function multipleSearchStrings(
   responseHtml,
@@ -90,14 +149,14 @@ function multipleSearchStrings(
 ) {
   let searchStartIndex = responseHtml.indexOf(searchStringStart, previousSearchEndIndex)
 
-  if (searchStartIndex > 0) {
+  if (searchStartIndex >= 0) {
     //
     let searchEndIndex = responseHtml.indexOf(searchStringEnd, searchStartIndex)
-    let secondProjectString = responseHtml
+    let projectString = responseHtml
       .substring(searchStartIndex + searchStringStart.length, searchEndIndex)
       .trim()
     //
-    searchResults.push(secondProjectString)
+    searchResults.push(projectString)
     searchResults.concat(
       multipleSearchStrings(
         responseHtml,
