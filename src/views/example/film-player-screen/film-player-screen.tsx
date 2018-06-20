@@ -9,8 +9,7 @@ import { UserStoreType } from "../../../models/user-store"
 import { MyHeader } from "../../shared/myHeader"
 import { Left, Icon, Button, Header, Title } from "native-base"
 import { WithSubscription } from "../../shared/higher-order-component"
-
-const HeaderHoc = WithSubscription(MyHeader)
+import { UserType } from "../../../models/user-store"
 
 interface FilmPlayerScreenProps extends NavigationScreenProps<{}> {
   filmStore: FilmStoreType
@@ -37,10 +36,9 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
   }
 
   navigate = () => {
-    this.props.userStore.addSelectedUser(this.selectedFilm.creator_id)
-    console.log(this.selectedFilm.creator.project_lead)
+    console.log(this.selectedFilm.creator_id)
     this.navigation.navigate("creatorProfile", {
-      projectLead: this.selectedFilm.project_lead,
+      creator: this.selectedFilm.creator_id as UserType,
     })
   }
 
@@ -65,7 +63,7 @@ export class FilmPlayerScreen extends Component<FilmPlayerScreenProps, {}> {
             onChangeState={e => this.setState({ status: e.state })}
             onChangeQuality={e => this.setState({ quality: e.quality })}
             onError={e => this.setState({ error: e.error })}
-            style={{ alignSelf: "stretch", height: 300 }}
+            style={{ alignSelf: "stretch", height: 300, flex: 1 }}
           />
         </View>
         <View style={styles.textBox}>
@@ -93,11 +91,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ec9aa1",
   },
   title: {
-    // textAlign: "center",
-    // justifyContent: "center",
     fontWeight: "bold",
     fontSize: 18,
-    //marginTop: 30,
     color: "#23415a",
     textAlign: "auto",
     flexWrap: "wrap",
@@ -128,6 +123,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   thumb: {
+    marginTop: 10,
     width: 130,
     height: 130,
     borderRadius: 80 / 8,

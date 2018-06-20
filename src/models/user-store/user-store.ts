@@ -12,7 +12,7 @@ export const UserStoreModel = types
   .model("UserStore", {
     users: types.optional(types.array(User), []),
     isFetching: types.boolean,
-    selectedUser: types.maybe(types.reference(User)),
+    // selectedUser: types.maybe(types.reference(User)),
   })
   .actions(self => ({
     fetchUser: flow(function*(url: string, projectLead: string, creatorId: string, filmId: string) {
@@ -47,19 +47,10 @@ export const UserStoreModel = types
           let someFilm = filmStore.getFilmById(filmId)
           someFilm.addCreatorProfileImageUrl(profileImage, filmId)
 
-          /* This is another way to add the creators profile image to the selected films in the filmstore
-            if (filmStore.selectedOtherFilm === null) {
-              filmStore.selectedCommunityFilm.addCreatorProfileImageUrl(profileImage)
-            } else {
-              filmStore.selectedOtherFilm.addCreatorProfileImageUrl(profileImage)
-            }
-          */
-
           // Fetch raw html for individual projects from storyhive
           // using project IDs and parse image urls from html
           var projectImageUrls = []
           for (var imageId of projectImageIds) {
-            console.log("image id: ", imageId)
             const response = yield fetch("https://www.storyhive.com/project/show/id/" + imageId)
             const responseHtml = yield response.text()
             let projectImageUrl: string
@@ -79,22 +70,10 @@ export const UserStoreModel = types
           }
 
           // Create users and add them to users array
-
           let creator = self.getCreatorById(creatorId)
-          console.log("creator", creator)
           creator.image_url = profileImage
           creator.project_image_urls = projectImageUrls
           creator.project_names = projects
-
-          // self.users.push({
-          //   project_lead: projectLead,
-          //   image_url: profileImage,
-          //   project_names: projects,
-          //   project_image_urls: projectImageUrls,
-          //   creator_id: creatorId,
-          // })
-
-          //
         } else {
           console.log("user already exists in store")
         }
@@ -103,9 +82,6 @@ export const UserStoreModel = types
         console.error(error)
       }
     }),
-    addSelectedUser(creatorId) {
-      self.selectedUser = creatorId
-    },
     addCreator(projectLead, creatorId) {
       self.users.push({
         project_lead: projectLead,
@@ -115,9 +91,7 @@ export const UserStoreModel = types
   }))
   .views(self => ({
     getCreatorById(pid) {
-      //console.log("getCreatorById", pid)
       let creator = self.users.find(item => parseInt(item.creator_id) === parseInt(pid))
-      //console.log(creator)
       return creator
     },
   }))
@@ -126,7 +100,8 @@ function whileLoopSearch(responseHtml, searchStringStart, searchStringEnd) {
   var mySearchResults = []
   var searchStartIndex = responseHtml.indexOf(searchStringStart)
 
-  //
+  // Searches html.text() for all text between search string start and end. Stops while loop when search
+  // start index is -1, meaning there are no more search results.
   while (searchStartIndex >= 0) {
     let searchEndIndex = responseHtml.indexOf(searchStringEnd, searchStartIndex)
     let projectString = responseHtml
@@ -171,3 +146,4 @@ function multipleSearchStrings(
 }
 
 export type UserStoreType = typeof UserStoreModel.Type
+export type UserType = typeof User.Type

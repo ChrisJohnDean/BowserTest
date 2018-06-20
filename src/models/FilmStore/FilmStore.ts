@@ -23,8 +23,7 @@ const CommunityVideos = types.model("CommunityVideos", {
 const Film = types
   .model("Film", {
     id: types.identifier(types.optional(types.string, "")),
-    creator_id: types.optional(types.string, ""),
-    creator: types.maybe(types.reference(User)),
+    creator_id: types.maybe(types.reference(User)),
     elevator_pitch: types.optional(types.string, ""),
     app_instance_id: types.optional(types.string, ""),
     title: types.optional(types.string, ""),
@@ -38,7 +37,6 @@ const Film = types
   })
   .actions(self => ({
     addCreatorProfileImageUrl(url, pid = "pool") {
-      console.log(pid, "url is", url, " and id is ", self.id, " not ", pid)
       self.creator_profile_image_url = url
     },
   }))
@@ -65,27 +63,19 @@ export const FilmStoreModel = types
           ? (self.communityFilms = responseJson.results)
           : (self.otherFilms = responseJson.results)
 
-        //
-        let myFilms = edition === "Community Videos" ? self.communityFilms : self.otherFilms
-
-        myFilms.map(item => {
-          item.creator = item.creator_id
-        })
-
-        // This is a contrived use of films[] and .map function, done for practise
+        // This is a contrived use of films[] and .map function, done for practise, except now it also creates
+        // users in the user store
         let rootStore = getRoot(self)
         let userStore = rootStore.userStore
         self.films = responseJson.results.map(item => {
           // create user in user store
-
           if (userStore.getCreatorById(item.creator_id) === undefined) {
             userStore.addCreator(item.project_lead, item.creator_id)
           }
-          //
+
           return {
             id: item.id,
             creator_id: item.creator_id,
-            creator: item.creator_id,
             elevator_pitch: item.elevator_pitch,
             app_instance_id: item.app_instance_id,
             title: item.title,
@@ -97,6 +87,7 @@ export const FilmStoreModel = types
             trending: item.trending,
           }
         })
+
         self.isFetching = false
       } catch (error) {
         console.error(error)

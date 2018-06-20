@@ -62,7 +62,6 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
 
   constructor(props) {
     super(props)
-    //this.filmStore = this.props.filmStore
     this.navigation = this.props.navigation
     this.edition = this.navigation.getParam("edition", "Community Videos")
     this.filmTypeUrl = this.navigation.getParam("filmTypeUrl", "")
@@ -75,18 +74,15 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
   _keyExtractor = (item, index) => index.toString()
 
   _renderItem = ({ item, index }) => {
-    //console.log(index, colors.length, index % colors.length)
     return (
       <View style={{ backgroundColor: colors[index % colors.length] }}>
-        {/* <ListItem */}
         <ListItem item={item} data={item} index={index} onPressItem={this._onPressItem} />
       </View>
     )
   }
 
   _onPressItem = (index, item) => {
-    let url = "https://www.storyhive.com/creator/profile/id/" + item.creator_id
-
+    let url = "https://www.storyhive.com/creator/profile/id/" + item.creator_id.creator_id
     this.edition === "Community Videos"
       ? (this.props.filmStore.addSelectedCommunityFilm(
           this.props.filmStore.communityFilms[index].id,
@@ -94,14 +90,14 @@ export class SecondExampleScreen extends React.Component<SecondExampleScreenProp
         this.props.userStore.fetchUser(
           url,
           item.project_lead,
-          item.creator_id,
+          item.creator_id.creator_id,
           this.props.filmStore.selectedCommunityFilm.id,
         ))
       : (this.props.filmStore.addSelectedOtherFilm(this.props.filmStore.otherFilms[index].id),
         this.props.userStore.fetchUser(
           url,
           item.project_lead,
-          item.creator_id,
+          item.creator_id.creator_id,
           this.props.filmStore.selectedOtherFilm.id,
         ))
 

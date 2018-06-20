@@ -144,7 +144,7 @@ export class FirstExampleScreen extends React.Component<FirstExampleScreenProps,
             <Button
               containerStyle={{
                 padding: 10,
-                marginBottom: 40,
+                // marginBottom: 40,
                 height: 45,
                 width: 300,
                 overflow: "hidden",
@@ -157,11 +157,13 @@ export class FirstExampleScreen extends React.Component<FirstExampleScreenProps,
               Watch Now!
             </Button>
           </Animated.View>
+        </View>
+        <View style={styles.buttonView}>
           <Animated.View style={{ transform: [{ scale: scaleButton }] }}>
             <Button
               containerStyle={{
                 padding: 10,
-                marginTop: 30,
+                // marginTop: 100,
                 height: 45,
                 width: 300,
                 overflow: "hidden",
@@ -191,9 +193,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonView: {
-    flex: 1,
+    flex: 0.5,
     justifyContent: "center",
     alignItems: "center",
+    // marginBottom: 20,
   },
   text: {
     fontSize: 32,
